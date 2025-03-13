@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mattermost:
+    image: mattermost/mattermost-prod-app:latest
+    container_name: mattermost
+    environment:
+      # Set the URL where Mattermost will be accessed (adjust as needed)
+      - MATTERMOST_SERVICESETTINGS_SITEURL=https://chat.example.com
+      # Additional configuration (e.g., database, file storage) should be added for production.
+    ports:
+      - "8065:8065"
+    volumes:
+      - mattermost_data:/mattermost/data
+    restart: always
+
+  gitea:
+    image: gitea/gitea:latest
+    container_name: gitea
+    environment:
+      # Basic configuration for Gitea
+      - APP_NAME=Gitea
+      - DOMAIN=code.example.com
+      - SSH_DOMAIN=code.example.com
+      - ROOT_URL=https://code.example.com
+      # Additional settings (database, SMTP, etc.) may be needed for production.
+    ports:
+      - "3000:3000"
+      - "222:22"
+    volumes:
+      - gitea_data:/data
+    restart: always
+
+volumes:
+  mattermost_data:
+  gitea_data:
