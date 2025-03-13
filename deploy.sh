@@ -71,6 +71,59 @@ else
     echo "   ✅ ./data/gitea already exists."
 fi
 
+# Create Mattermost config directory and config file
+echo
+echo "📁 Creating Mattermost configuration..."
+mkdir -p ./data/mattermost/config
+echo "   ✅ ./data/mattermost/config directory created."
+
+# Set proper permissions for Mattermost config directory
+echo "   Setting permissions for Mattermost config directory..."
+chmod -R 777 ./data/mattermost/config
+echo "   ✅ Permissions set to allow Mattermost to write to config directory."
+
+# Create config.json file with email notifications disabled
+echo "   Creating Mattermost config.json file..."
+cat > ./data/mattermost/config/config.json << 'EOF'
+{
+    "ServiceSettings": {
+        "SiteURL": "http://localhost:8065"
+    },
+    "SqlSettings": {
+        "DriverName": "postgres",
+        "DataSource": "postgres://mmuser:mmpassword@postgres:5432/mattermost?sslmode=disable&connect_timeout=10"
+    },
+    "EmailSettings": {
+        "SendEmailNotifications": false,
+        "FeedbackName": "No-Reply",
+        "FeedbackEmail": "no-reply@example.com",
+        "EnableSMTPAuth": false,
+        "SMTPUsername": "",
+        "SMTPPassword": "",
+        "SMTPServer": "",
+        "SMTPPort": "",
+        "ConnectionSecurity": "",
+        "SkipServerCertificateVerification": true,
+        "EnableEmailBatching": false,
+        "EnablePreviewModeBanner": false
+    },
+    "AnnouncementSettings": {
+        "AdminNoticesEnabled": false,
+        "UserNoticesEnabled": false
+    },
+    "LogSettings": {
+        "EnableConsole": true,
+        "ConsoleLevel": "INFO"
+    }
+}
+EOF
+echo "   ✅ Mattermost config.json created successfully."
+
+# Ensure config file has proper permissions
+echo "   Setting permissions for config.json..."
+chmod 666 ./data/mattermost/config/config.json
+echo "   ✅ Permissions set for config.json."
+
 # Pull the latest images
 echo
 echo "🔄 Pulling latest Docker images..."
