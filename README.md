@@ -1,97 +1,82 @@
 # Orgapult
 
-Orgapult is an open-source organization launcher designed to bootstrap the digital infrastructure of a growing company. This project provides an automated deployment of essential services—such as chat and code management—using open-source tools. The current implementation focuses on launching a Mattermost instance (for team communication) and a Gitea instance (for Git repository management) on an Ubuntu server using Docker Compose. Future iterations may integrate additional services like a static wiki, blog, jobs portal, and HR/payroll systems.
+Orgapult is an open-source organization launcher designed to bootstrap the digital infrastructure of a growing company. This project provides an automated deployment of essential services—such as chat and code management—using open-source tools. The current implementation focuses on launching a Mattermost instance (for team communication) and a Gitea instance (for Git repository management) using Docker Compose.
+
+## Tech Stack
+
+The deployment consists of the following components:
+
+1. **Mattermost** - An open-source, self-hostable messaging platform designed as an alternative to Slack and Microsoft Teams
+   - Uses the official `mattermost/mattermost-prod-app:latest` image
+   - Runs on port 8065
+   - Configured with email notifications disabled
+
+2. **Gitea** - A lightweight, self-hosted Git service similar to GitHub or GitLab
+   - Uses the official `gitea/gitea:latest` image
+   - Web interface runs on port 3000
+   - SSH service runs on port 222
+
+3. **PostgreSQL** - A powerful, open-source relational database
+   - Uses `postgres:13` image
+   - Serves as the database backend for Mattermost
+   - Data persisted in a Docker volume
 
 ## Overview
 
 **Orgapult** aims to:
 - **Streamline Infrastructure Deployment:** Quickly set up essential organizational tools with a single script.
 - **Leverage Lightweight, Open-Source Solutions:** Mattermost and Gitea are both built with Go, offering efficiency and performance.
-- **Simplify Integrations:** Configure services to run on subdomains (e.g., \`chat.<domain>\` for Mattermost and \`code.<domain>\` for Gitea) and integrate with Google authentication.
+- **Simplify Integrations:** Configure services to run on localhost ports for easy access.
 - **Provide a Foundation for Future Growth:** While the initial focus is on chat and code, the project is designed to evolve by adding more integrated services over time.
 
 ## Features
 
 - **Automated Deployment:**  
-  A Python script generates a Docker Compose file and launches containers for Mattermost and Gitea.
-
-- **Subdomain Configuration:**  
-  The services are pre-configured to run on \`chat.<domain>\` and \`code.<domain>\`, easing the DNS setup process.
-
-- **Google Authentication Integration:**  
-  Mattermost is configured with a placeholder for Google auth using your provided API key.
+  Shell scripts handle the deployment and cleanup of Docker containers for Mattermost and Gitea.
 
 - **Container Isolation:**  
   The services run in Docker containers, keeping them isolated from the host system.
 
+- **Persistent Storage:**  
+  Docker volumes ensure that your data persists between container restarts.
+
 - **Extensible Design:**  
-  The setup provides a solid base that can be extended to include additional services like a static wiki, blog, and HR systems.
+  The setup provides a solid base that can be extended to include additional services.
 
 ## Prerequisites
 
-- **Operating System:** Ubuntu (or another Linux distribution)
+- **Operating System:** Ubuntu, macOS, or another system with Docker support
 - **Docker:** Installed and running ([Docker installation guide](https://docs.docker.com/engine/install/))
 - **Docker Compose:** Installed ([Docker Compose installation guide](https://docs.docker.com/compose/install/))
-- **Python 3:** For running the deployment script
-- **Google API Key:** For Mattermost's Google authentication integration
+- **User permissions:** Your user should be in the docker group to run containers without sudo
 
-## Installation & Deployment
+## Usage Instructions
 
-1. **Clone the Orgapult Repository:**
-   \`\`\`bash
-   git clone https://github.com/yourusername/orgapult.git
-   cd orgapult
-   \`\`\`
+### Deployment
 
-2. **Prepare Your Environment:**
-   - Install Docker and Docker Compose on your Ubuntu server.
-   - Ensure Python 3 is installed:
-     \`\`\`bash
-     sudo apt update && sudo apt install python3 python3-pip
-     \`\`\`
+To deploy the services:
 
-3. **Run the Deployment Script:**
-   - The deployment script (\`deploy.py\`) accepts two arguments: your Google API key and your domain name.
-   - Example usage:
-     \`\`\`bash
-     chmod +x deploy.py
-     ./deploy.py YOUR_GOOGLE_API_KEY yourdomain.com
-     \`\`\`
-   - The script will generate a \`docker-compose.yml\` file configured to run:
-     - **Mattermost:** Accessible at \`https://chat.yourdomain.com\` (port 8065)
-     - **Gitea:** Accessible at \`https://code.yourdomain.com\` (HTTP on port 3000 and SSH on port 222)
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
 
-4. **DNS Configuration:**
-   - Update your DNS settings (or your local \`/etc/hosts\` file) so that \`chat.yourdomain.com\` and \`code.yourdomain.com\` point to your server's public IP address.
+The deployment script:
+1. Checks for Docker and Docker Compose installation
+2. Creates necessary directories for data persistence
+3. Sets up Mattermost configuration with email notifications disabled
+4. Pulls the latest Docker images
+5. Starts the containers
+6. Verifies the deployment status
 
-## Script Details
+### Cleanup
 
-The deployment script (\`deploy.py\`) performs the following actions:
-- **Docker Compose File Generation:**  
-  It creates a \`docker-compose.yml\` file that defines two services:
-  - **Mattermost:** Configured with environment variables for site URL and Google API key.
-  - **Gitea:** Configured with basic settings for domain and root URL.
-  
-- **Container Launch:**  
-  It launches both services using Docker Compose in detached mode.
-  
-- **Deployment Summary:**  
-  After launching, it outputs the URLs where the services are accessible and reminds you to configure your DNS accordingly.
+To stop and remove all containers and data:
 
-## Future Work
-
-- **Enhanced Configuration:**  
-  Integrate persistent storage, databases, SSL configuration, and advanced application settings.
-- **Automated DNS Management:**  
-  Develop modules to automatically update DNS records using Google Cloud DNS or Cloudflare APIs.
-- **Additional Services:**  
-  Expand Orgapult to include a static wiki, blog, jobs portal (with an open-source ATS), and HR/payroll systems.
-- **Cloud Deployment:**  
-  Adapt the deployment script for launching on Google Cloud Platform (GCP) or other cloud providers.
-- **Improved Integration:**  
-  Enhance interoperability between Mattermost, Gitea, and future services (e.g., single sign-on, CI/CD integration).
-
-## Cleanup
+```bash
+chmod +x cleanup.sh
+./cleanup.sh
+```
 
 The cleanup script:
 1. Lists current containers and volumes
@@ -127,12 +112,27 @@ The deployment uses Docker Compose with the following configuration:
 
 ### Docker Permission Issues
 If you encounter permission errors when running the scripts, ensure your user is in the docker group:
-
 ```bash
 sudo usermod -aG docker $USER
 ```
-
 Then log out and log back in, or restart your system.
 
 ### Mattermost Configuration
 The deployment script creates a custom configuration for Mattermost with email notifications disabled to prevent common startup errors.
+
+## Future Work
+
+- **Enhanced Configuration:**  
+  Add support for SSL configuration and advanced application settings.
+- **Automated DNS Management:**  
+  Develop modules to automatically update DNS records for public deployments.
+- **Additional Services:**  
+  Expand Orgapult to include a static wiki, blog, jobs portal, and HR/payroll systems.
+- **Cloud Deployment:**  
+  Adapt the deployment script for launching on cloud providers like AWS, GCP, or Azure.
+- **Improved Integration:**  
+  Enhance interoperability between Mattermost, Gitea, and future services (e.g., single sign-on, CI/CD integration).
+
+## Contributing
+
+Contributions are welcome! Please fork the repository, submit issues, or create pull requests to help improve Orgapult.
