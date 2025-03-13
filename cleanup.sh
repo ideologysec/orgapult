@@ -17,13 +17,39 @@ else
     echo "✅ docker-compose is installed. Version: $(docker-compose --version)"
 fi
 
+# Check if docker is installed
 echo
-echo "📋 Checking if Docker is running..."
-if ! docker info &> /dev/null; then
-    echo "❌ ERROR: Docker is not running. Please start Docker first."
+echo "📋 Checking if Docker is installed..."
+if ! command -v docker &> /dev/null; then
+    echo "❌ ERROR: Docker is not installed. Please install Docker first."
+    echo "   For Ubuntu: sudo apt install docker.io"
+    echo "   For macOS: Install Docker Desktop from https://www.docker.com/products/docker-desktop"
     exit 1
 else
-    echo "✅ Docker is running."
+    echo "✅ Docker is installed. Version: $(docker --version)"
+fi
+
+# Check Docker access
+echo
+echo "📋 Checking Docker access..."
+if ! docker info &> /dev/null; then
+    # Check if Docker daemon is running
+    if systemctl is-active --quiet docker 2>/dev/null || pgrep -f docker &>/dev/null; then
+        echo "❌ ERROR: Docker daemon is running but you don't have permission to access it."
+        echo "   This is likely because your user is not in the 'docker' group."
+        echo "   To fix this, run: sudo usermod -aG docker $USER"
+        echo "   Then log out and log back in, or restart your system."
+        echo
+        echo "   Alternatively, you can run this script with sudo:"
+        echo "   sudo $0"
+    else
+        echo "❌ ERROR: Docker daemon is not running. Please start Docker service."
+        echo "   For Ubuntu: sudo systemctl start docker"
+        echo "   For macOS: Start Docker Desktop application"
+    fi
+    exit 1
+else
+    echo "✅ Docker is running and accessible."
 fi
 
 # List current containers and volumes
