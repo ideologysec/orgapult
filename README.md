@@ -91,6 +91,48 @@ The deployment script (\`deploy.py\`) performs the following actions:
 - **Improved Integration:**  
   Enhance interoperability between Mattermost, Gitea, and future services (e.g., single sign-on, CI/CD integration).
 
-## Contributing
+## Cleanup
 
-Contributions are welcome! Please fork the repository, submit issues, or create pull requests to help improve Orgapult.
+The cleanup script:
+1. Lists current containers and volumes
+2. Asks for confirmation before proceeding
+3. Stops and removes all containers
+4. Removes all associated volumes
+5. Verifies that everything has been cleaned up
+
+**Warning**: The cleanup script will permanently delete all data stored in the Docker volumes.
+
+## Accessing the Services
+
+After successful deployment:
+- Mattermost will be available at: http://localhost:8065
+- Gitea will be available at: http://localhost:3000
+
+You'll need to complete the initial setup for both services when accessing them for the first time.
+
+## Docker Configuration
+
+The deployment uses Docker Compose with the following configuration:
+
+- **Volumes**: Three Docker volumes are created to persist data:
+  - `mattermost_data`: Stores Mattermost application data
+  - `gitea_data`: Stores Gitea repositories and application data
+  - `postgres_data`: Stores PostgreSQL database files
+
+- **Networking**: All services run on the same Docker network
+  - Mattermost is accessible at http://localhost:8065
+  - Gitea is accessible at http://localhost:3000
+
+## Troubleshooting
+
+### Docker Permission Issues
+If you encounter permission errors when running the scripts, ensure your user is in the docker group:
+
+```bash
+sudo usermod -aG docker $USER
+```
+
+Then log out and log back in, or restart your system.
+
+### Mattermost Configuration
+The deployment script creates a custom configuration for Mattermost with email notifications disabled to prevent common startup errors.
