@@ -21,6 +21,23 @@ services:
       # Configure database settings for Mattermost
       - MM_SQLSETTINGS_DRIVERNAME=postgres
       - MM_SQLSETTINGS_DATASOURCE=postgres://mmuser:mmpassword@postgres:5432/mattermost?sslmode=disable&connect_timeout=10
+      # Fix for email notification error - more comprehensive settings
+      - MM_EMAILSETTINGS_SENDEMAILNOTIFICATIONS=false
+      - MM_EMAILSETTINGS_ENABLESMTPAUTH=false
+      - MM_EMAILSETTINGS_FEEDBACKEMAIL=no-reply@example.com
+      - MM_EMAILSETTINGS_SMTPSERVER=mail.example.com
+      - MM_EMAILSETTINGS_SMTPPORT=587
+      - MM_EMAILSETTINGS_ENABLEPREVIEWMODEBANNER=false
+      - MM_EMAILSETTINGS_SKIPSERVERCERTIFICATEVERIFICATION=true
+      - MM_EMAILSETTINGS_CONNECTIONSECURITY=
+      # Disable admin notifications about email
+      - MM_EMAILSETTINGS_ENABLEEMAILBATCHING=false
+      - MM_EMAILSETTINGS_ENABLESECURITYFIXALERT=false
+      # Ensure SiteURL is properly set
+      - MM_SERVICESETTINGS_SITEURL=http://localhost:8065
+      # Disable unnecessary notifications
+      - MM_ANNOUNCEMENTSETTINGS_ADMINNOTICESENABLED=false
+      - MM_ANNOUNCEMENTSETTINGS_USERNOTICESENABLED=false
     ports:
       - "8065:8065"
     depends_on:
